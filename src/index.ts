@@ -142,3 +142,126 @@ export const RATE_TYPE_CHIP_LABELS: Readonly<Record<RateType, string>> = Object.
   RATE_JUMBO_30YR: "Jumbo",
   RATE_SOFR: "ARM Index",
 });
+
+// ============================================================================
+// Rate-context response surface (SPEC-PLATFORM-RATE-CONTEXT-NURTURE-UNIFY §3)
+// ============================================================================
+//
+// Phase A v0.2.0 promotes `EffectiveRate` from Rello-local + adds 5 new types
+// the `/api/engine/rate-context` payload contract Phase D ships and Phase E
+// consumes via type-only import (Platform Class-Level Rule E).
+
+/** Source of an `EffectiveRate.rate` reading (rate-sheet > fred-fallback cascade). */
+export type EffectiveRateSource =
+  | "rate_sheet"
+  | "fred_fallback"
+  | "fred_fallback_missing";
+
+/** Canonical effective-rate row (promoted from `~/Rello/src/lib/rate-data/effective-rates.ts`). */
+export interface EffectiveRate {
+  rateType: RateType;
+  rate: number | null;
+  source: EffectiveRateSource;
+  effectiveDate: string;
+  lenderName?: string;
+  rateWholesale?: number;
+  rateMarkupPercent?: number;
+  freshUntil?: string;
+  assumptions?: Record<string, unknown>;
+  disclosureText?: string;
+}
+
+/**
+ * Trend summary over a per-rateType source-filtered window — single owner for
+ * both write-path (`detectRateChanges`) and read-path (`buildRateEnvironmentBlock`)
+ * per SPEC §2.2. `consecutiveWeeks` is the durable signal; `dataPoints` is kept
+ * for composer logic but dropped from prose per §2.11.
+ */
+export interface TrendSnapshot {
+  direction: "declining" | "rising" | "flat";
+  consecutiveWeeks: number;
+  totalChangeBps: number;
+  dataPoints: number;
+  weeklyConsistent: boolean;
+  anchorRate: number;
+  currentRate: number;
+}
+
+/** `EffectiveRate` extended with per-rateType trend + offered-vs-FRED gap (SPEC §3). */
+export interface EffectiveRateWithTrend extends EffectiveRate {
+  trend: TrendSnapshot;
+  /** Present when `source === "rate_sheet"` AND a FRED row exists for the same `rateType`. */
+  offeredVsFredBps?: number;
+}
+
+/**
+ * Typed lead rate-context (SPEC §3 `leadRateContext`).
+ *
+ * `sensitivity` is the consumer-facing string-literal-union form; Rello's
+ * `RateSensitivity` Prisma enum carries the `RATE_` prefix (`RATE_HIGH` etc.)
+ * and Phase D Rello-side conversion strips it at the route boundary — do not
+ * mirror the prefix into this package (per dispatch §3b boundary-strip rule).
+ *
+ * `anchorSource` includes `scout_rate_alert_current_rate` (not SPEC §3's
+ * `target_rate`) per `DISCOVERED-SPEC2-§2.7-MISSING-SCOUT-CURRENT-RATE-ANCHOR`
+ * — the current-rate chain is `hh_lien1_rate > scout_rate_alert_current_rate
+ * > homeowner_profile_originalRate`; target-rate is a separate opportunity
+ * signal class handled in Phase D `anchors.ts`.
+ */
+export interface LeadRateContextPayload {
+  anchorRate: number | null;
+  anchorSource:
+    | "hh_lien1_rate"
+    | "scout_rate_alert_current_rate"
+    | "homeowner_profile_originalRate"
+    | null;
+  gapVsOfferedBps: number | null;
+  gapVsFredBps: number | null;
+  sensitivity: "HIGH" | "MEDIUM" | "LOW" | null;
+  behavioralScore: number | null;
+  alertsThisMonth: number;
+  monitoringRateTypes: RateType[];
+  cooldownUntil: string | null;
+  recentAlerts: Array<{
+    rateType: RateType;
+    changeAmount: number;
+    status: string;
+    createdAt: string;
+  }>;
+}
+
+/** 60-day rate-history summary persisted from `RateChangeEvent` (SPEC §2.10 + §3). */
+export interface RecentRateHistory {
+  biggestDropLast60d: { bps: number; date: string; rateType: RateType } | null;
+  biggestSpikeLast60d: { bps: number; date: string; rateType: RateType } | null;
+  milestoneCrossingsLast60d: Array<{
+    milestone: number;
+    direction: "down" | "up";
+    date: string;
+    rateType: RateType;
+  }>;
+  currentDirectionStreak: {
+    rateType: RateType;
+    direction: "declining" | "rising";
+    weeks: number;
+  } | null;
+}
+
+/**
+ * Full `/api/engine/rate-context` response payload (SPEC §3).
+ *
+ * Phase D ships this contract; Phase E1 cuts Milo Engine over to type-only
+ * import per Class-Level Rule E. Text blocks (`rateEnvironment`,
+ * `leadRateProfile`) are pre-rendered for direct prompt injection; typed
+ * fields drive composer branching + urgency scaling.
+ */
+export interface RateContextResponse {
+  rateEnvironment: string;
+  leadRateProfile: string | null;
+  effectiveRates: EffectiveRateWithTrend[];
+  leadRateContext: LeadRateContextPayload | null;
+  recentRateHistory: RecentRateHistory;
+  dataStatus: "FRESH" | "STALE";
+  generatedAt: string;
+  resolvedFromMloId: string | null;
+}

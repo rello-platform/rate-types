@@ -1,6 +1,6 @@
 {
   "name": "@rello-platform/rate-types",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Canonical RateType enum + cross-namespace translators (PFP keys / PE keys / Rello enum / FRED series) for the Rello platform.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
