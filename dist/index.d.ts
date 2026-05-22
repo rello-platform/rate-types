@@ -13,8 +13,8 @@
  *
  * Sibling: @rello-platform/permissions (single-domain canonical registry pattern).
  */
-/** Canonical 8-value RateType enum (mirrors Rello `prisma/schema.prisma` `enum RateType`). */
-export declare const RATE_TYPES: readonly ["RATE_30YR_FIXED", "RATE_15YR_FIXED", "RATE_5_1_ARM", "RATE_FHA_30YR", "RATE_VA_30YR", "RATE_USDA_30YR", "RATE_JUMBO_30YR", "RATE_SOFR"];
+/** Canonical 11-value RateType enum (mirrors Rello `prisma/schema.prisma` `enum RateType`). */
+export declare const RATE_TYPES: readonly ["RATE_30YR_FIXED", "RATE_25YR_FIXED", "RATE_20YR_FIXED", "RATE_15YR_FIXED", "RATE_10YR_FIXED", "RATE_5_1_ARM", "RATE_FHA_30YR", "RATE_VA_30YR", "RATE_USDA_30YR", "RATE_JUMBO_30YR", "RATE_SOFR"];
 export type RateType = (typeof RATE_TYPES)[number];
 export declare function isRateType(value: unknown): value is RateType;
 export declare const PFP_KEY_TO_RATE_TYPE: Readonly<Record<string, RateType | null>>;
