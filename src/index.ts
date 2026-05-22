@@ -14,13 +14,15 @@
  * Sibling: @rello-platform/permissions (single-domain canonical registry pattern).
  */
 
-/** Canonical 11-value RateType enum (mirrors Rello `prisma/schema.prisma` `enum RateType`). */
+/** Canonical 13-value RateType enum (mirrors Rello `prisma/schema.prisma` `enum RateType`). */
 export const RATE_TYPES = [
   "RATE_30YR_FIXED",
   "RATE_25YR_FIXED",
   "RATE_20YR_FIXED",
   "RATE_15YR_FIXED",
   "RATE_10YR_FIXED",
+  "RATE_HOMEREADY_30YR",
+  "RATE_HOME_POSSIBLE_30YR",
   "RATE_5_1_ARM",
   "RATE_FHA_30YR",
   "RATE_VA_30YR",
@@ -45,6 +47,8 @@ Object.assign(PFP_KEY_TO_RATE_TYPE_MAP, {
   conventional_20yr: "RATE_20YR_FIXED",
   conventional_15yr: "RATE_15YR_FIXED",
   conventional_10yr: "RATE_10YR_FIXED",
+  homeready_30yr: "RATE_HOMEREADY_30YR",
+  home_possible_30yr: "RATE_HOME_POSSIBLE_30YR",
   fha_30yr: "RATE_FHA_30YR",
   va_30yr: "RATE_VA_30YR",
   usda_30yr: "RATE_USDA_30YR",
@@ -69,6 +73,8 @@ export const RATE_TYPE_TO_PFP_KEY: Readonly<Partial<Record<RateType, string>>> =
   RATE_20YR_FIXED: "conventional_20yr",
   RATE_15YR_FIXED: "conventional_15yr",
   RATE_10YR_FIXED: "conventional_10yr",
+  RATE_HOMEREADY_30YR: "homeready_30yr",
+  RATE_HOME_POSSIBLE_30YR: "home_possible_30yr",
   RATE_FHA_30YR: "fha_30yr",
   RATE_VA_30YR: "va_30yr",
   RATE_USDA_30YR: "usda_30yr",
@@ -87,6 +93,8 @@ Object.assign(PE_KEY_TO_RATE_TYPE_MAP, {
   conventional20yr: "RATE_20YR_FIXED",
   conventional15yr: "RATE_15YR_FIXED",
   conventional10yr: "RATE_10YR_FIXED",
+  homeready30yr: "RATE_HOMEREADY_30YR",
+  homePossible30yr: "RATE_HOME_POSSIBLE_30YR",
   fha30yr: "RATE_FHA_30YR",
   va30yr: "RATE_VA_30YR",
   usda30yr: "RATE_USDA_30YR",
@@ -137,6 +145,8 @@ export const RATE_TYPE_LABELS: Readonly<Record<RateType, string>> = Object.freez
   RATE_20YR_FIXED: "20-Year Fixed",
   RATE_15YR_FIXED: "15-Year Fixed",
   RATE_10YR_FIXED: "10-Year Fixed",
+  RATE_HOMEREADY_30YR: "HomeReady 30-Year (Fannie)",
+  RATE_HOME_POSSIBLE_30YR: "Home Possible 30-Year (Freddie)",
   RATE_5_1_ARM: "5/1 ARM",
   RATE_FHA_30YR: "FHA 30-Year",
   RATE_VA_30YR: "VA 30-Year",
@@ -152,6 +162,8 @@ export const RATE_TYPE_CHIP_LABELS: Readonly<Record<RateType, string>> = Object.
   RATE_20YR_FIXED: "20yr Fixed",
   RATE_15YR_FIXED: "15yr Fixed",
   RATE_10YR_FIXED: "10yr Fixed",
+  RATE_HOMEREADY_30YR: "HomeReady",
+  RATE_HOME_POSSIBLE_30YR: "Home Possible",
   RATE_5_1_ARM: "5/1 ARM",
   RATE_FHA_30YR: "FHA",
   RATE_VA_30YR: "VA",
