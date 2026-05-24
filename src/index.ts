@@ -189,12 +189,41 @@ export type EffectiveRateSource =
 /** Canonical effective-rate row (promoted from `~/Rello/src/lib/rate-data/effective-rates.ts`). */
 export interface EffectiveRate {
   rateType: RateType;
+  /**
+   * The borrower's note rate. Source-of-truth post v0.5.0:
+   * - source="rate_sheet": noteRate (LPC-walked OR BPC par)
+   * - source="fred_fallback": FRED market rate
+   * Carries the corrected value post-cfa8da3 (PFP) + 7b53631e (Rello).
+   */
   rate: number | null;
   source: EffectiveRateSource;
   effectiveDate: string;
   lenderName?: string;
+
+  // ─── NEW v0.5.0 — corrected rate math fields (cfa8da3) ───
+  /** Wholesale rate from the lender's rate sheet (par or starting point). */
+  wholesaleRate?: number;
+  /** MLO's negotiated LPC YSP target with this lender (from AgentLender.markupPercent). */
+  markupPct?: number;
+  /** Borrower-paid points at closing (under LPC: wholesale points + LLPAs − YSP excess; under BPC: + bpcFee). */
+  borrowerPointsAtClosing?: number;
+  /** Comp model active at resolve time. */
+  compModel?: "LPC" | "BPC";
+  /** When compModel="BPC", the resolved fee mode snapshot. */
+  bpcFeeMode?: "percent" | "flat" | null;
+  bpcFeePercent?: number | null;
+  bpcFeeFlat?: number | null;
+  /** Sheet freshness state (cascade signal). */
+  freshnessState?: "FRESH" | "STALE_PENDING_UPDATE";
+  staleSinceAt?: string | null;
+  staleWindowExpiresAt?: string | null;
+
+  // ─── Legacy v0.2.0+ fields (KEEP for backwards compat; eventual deprecation) ───
+  /** @deprecated v0.5.0 — use `wholesaleRate` for the corrected name. Legacy field carries the same value but the name no longer reflects the mortgage-math reality (markup is not added to rate). */
   rateWholesale?: number;
+  /** @deprecated v0.5.0 — use `markupPct` for the corrected name. */
   rateMarkupPercent?: number;
+
   freshUntil?: string;
   assumptions?: Record<string, unknown>;
   disclosureText?: string;
