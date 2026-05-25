@@ -13,8 +13,8 @@
  *
  * Sibling: @rello-platform/permissions (single-domain canonical registry pattern).
  */
-/** Canonical 13-value RateType enum (mirrors Rello `prisma/schema.prisma` `enum RateType`). */
-export declare const RATE_TYPES: readonly ["RATE_30YR_FIXED", "RATE_25YR_FIXED", "RATE_20YR_FIXED", "RATE_15YR_FIXED", "RATE_10YR_FIXED", "RATE_HOMEREADY_30YR", "RATE_HOME_POSSIBLE_30YR", "RATE_5_1_ARM", "RATE_FHA_30YR", "RATE_VA_30YR", "RATE_USDA_30YR", "RATE_JUMBO_30YR", "RATE_SOFR"];
+/** Canonical 35-value RateType enum (mirrors Rello `prisma/schema.prisma` `enum RateType`). */
+export declare const RATE_TYPES: readonly ["RATE_30YR_FIXED", "RATE_25YR_FIXED", "RATE_20YR_FIXED", "RATE_15YR_FIXED", "RATE_10YR_FIXED", "RATE_HOMEREADY_30YR", "RATE_HOME_POSSIBLE_30YR", "RATE_5_1_ARM", "RATE_7_6_ARM", "RATE_10_6_ARM", "RATE_FHA_30YR", "RATE_FHA_15YR", "RATE_FHA_STREAMLINE", "RATE_VA_30YR", "RATE_VA_15YR", "RATE_VA_IRRRL", "RATE_USDA_30YR", "RATE_JUMBO_30YR", "RATE_JUMBO_15YR", "RATE_JUMBO_7_6_ARM", "RATE_JUMBO_10_6_ARM", "RATE_DSCR", "RATE_BANK_STATEMENT", "RATE_ITIN", "RATE_FOREIGN_NATIONAL", "RATE_1099_INCOME", "RATE_ASSET_DEPLETION", "RATE_321_BUYDOWN", "RATE_21_BUYDOWN", "RATE_CONSTRUCTION_OTC", "RATE_CONSTRUCTION_TO_PERM", "RATE_HELOC", "RATE_FIXED_SECOND", "RATE_BRIDGE", "RATE_SOFR"];
 export type RateType = (typeof RATE_TYPES)[number];
 export declare function isRateType(value: unknown): value is RateType;
 export declare const PFP_KEY_TO_RATE_TYPE: Readonly<Record<string, RateType | null>>;
@@ -30,6 +30,14 @@ export declare function fredSeriesToRateType(seriesId: string): RateType | null;
 export declare const RATE_TYPE_LABELS: Readonly<Record<RateType, string>>;
 /** Compact widget-chip labels (matches Rello `TodaysRates.tsx` RATE_PAIRS). */
 export declare const RATE_TYPE_CHIP_LABELS: Readonly<Record<RateType, string>>;
+export declare const PROPERTY_TYPES: readonly ["SFR", "CONDO", "CONDO_NON_WARRANTABLE", "COOP", "PUD", "MANUFACTURED", "MODULAR", "TWO_UNIT", "THREE_UNIT", "FOUR_UNIT", "MIXED_USE"];
+export type PropertyType = (typeof PROPERTY_TYPES)[number];
+export declare const PROPERTY_TYPE_LABELS: Readonly<Record<PropertyType, string>>;
+export declare function isPropertyType(value: unknown): value is PropertyType;
+export type RateTypeCategory = "conventional" | "government" | "jumbo" | "non_qm" | "buydown" | "construction" | "second_heloc" | "index";
+export declare const RATE_TYPE_CATEGORY: Readonly<Record<RateType, RateTypeCategory>>;
+export declare const RATE_TYPE_CATEGORY_LABELS: Readonly<Record<RateTypeCategory, string>>;
+export declare const RATE_TYPE_CATEGORY_ORDER: readonly RateTypeCategory[];
 /** Source of an `EffectiveRate.rate` reading (rate-sheet > fred-fallback cascade). */
 export type EffectiveRateSource = "rate_sheet" | "fred_fallback" | "fred_fallback_missing";
 /** Canonical effective-rate row (promoted from `~/Rello/src/lib/rate-data/effective-rates.ts`). */
