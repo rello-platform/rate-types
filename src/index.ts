@@ -460,6 +460,54 @@ export interface EffectiveRate {
   freshUntil?: string;
   assumptions?: Record<string, unknown>;
   disclosureText?: string;
+
+  // ─── NEW v0.7.0 — APR carry (PFP-APR-BROADCAST) ───
+  /**
+   * TILA APR for this rate row, computed by PFP against the originating MLO's
+   * own assumptions and persisted on the AgentRateSheet row (PFP-APR-BROADCAST
+   * Phase A). Carried verbatim through the cascade — Rello never recomputes it.
+   * `undefined` when PFP did not emit an APR (generic / incomplete data); the
+   * render layer treats a missing APR as a suppressed-rate state (03-... §10.2:
+   * "No-APR → render NO rate"), never a rate-without-APR.
+   */
+  apr?: number;
+  /**
+   * Neutral TILA assumptions footnote backing `apr` (loan amount, term, points,
+   * MI, etc.). Mirror-rule (03-... §4 item 4): NO financial/profit fields
+   * (markup / wholesale / comp) — profit-free by construction, exactly as
+   * `MloPartnerBranding` carries "NO financial fields" (RESPA invariant).
+   */
+  aprAssumptions?: Record<string, unknown>;
+
+  // ─── NEW v0.7.0 — Partner Rate Source provider attribution (03-PARTNER-RATE-SOURCE §4 item 3) ───
+  /**
+   * Licensed-source attribution bound to a partner-sourced rate row. Present
+   * ONLY when this row was resolved through the cross-tenant Partner Rate Source
+   * cascade (a broker/RE-agent tenant serving a PARTNER MLO's sheets); absent on
+   * own-tenant and FRED rows. The rate value and this provider tag travel
+   * together as one indivisible unit (03-... §6: attribution is a control, not a
+   * feature — the render contract may never omit it). Fields:
+   *   - company:     the partner MLO's company name (MloPartner.company)
+   *   - nmls:        the partner's NMLS license id (MloPartner.nmls) — NMLS, not MLS
+   *   - mloTenantId: the partner tenant whose sheets sourced this row
+   *   - brandingId:  MloPartnerBranding.id for the recipient-facing attribution payload
+   */
+  provider?: {
+    company: string;
+    nmls: string;
+    mloTenantId: string;
+    brandingId: string;
+  };
+
+  // ─── Promoted from local `effective-rates.ts` (convergence — recon §5) ───
+  /**
+   * Borrower-facing points ladder (par + requested offsets). Present ONLY when
+   * the cascade was called with `include=ladder` AND `source === "rate_sheet"`.
+   * Each entry's `price` is the ADJUSTED price (wholesale + LLPA stack), NOT raw
+   * wholesale. `offset 0 === par`. Promoted from the Rello-local interface so the
+   * package and local shapes converge.
+   */
+  ladder?: Array<{ offset: number; rate: number; price: number }>;
 }
 
 /**
