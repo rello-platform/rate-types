@@ -14,7 +14,7 @@
  * Sibling: @rello-platform/permissions (single-domain canonical registry pattern).
  */
 
-/** Canonical 35-value RateType enum (mirrors Rello `prisma/schema.prisma` `enum RateType`). */
+/** Canonical 36-value RateType enum (mirrors Rello `prisma/schema.prisma` `enum RateType`). */
 export const RATE_TYPES = [
   // Conventional Fixed
   "RATE_30YR_FIXED",
@@ -56,6 +56,7 @@ export const RATE_TYPES = [
   "RATE_CONSTRUCTION_TO_PERM",
   // Second / HELOC
   "RATE_HELOC",
+  "RATE_HELOC_2ND",
   "RATE_FIXED_SECOND",
   "RATE_BRIDGE",
   // Index
@@ -105,6 +106,7 @@ Object.assign(PFP_KEY_TO_RATE_TYPE_MAP, {
   construction_otc: "RATE_CONSTRUCTION_OTC",
   construction_to_perm: "RATE_CONSTRUCTION_TO_PERM",
   heloc: "RATE_HELOC",
+  heloc_2nd: "RATE_HELOC_2ND",
   fixed_second: "RATE_FIXED_SECOND",
   bridge: "RATE_BRIDGE",
 });
@@ -154,6 +156,7 @@ export const RATE_TYPE_TO_PFP_KEY: Readonly<Partial<Record<RateType, string>>> =
   RATE_CONSTRUCTION_OTC: "construction_otc",
   RATE_CONSTRUCTION_TO_PERM: "construction_to_perm",
   RATE_HELOC: "heloc",
+  RATE_HELOC_2ND: "heloc_2nd",
   RATE_FIXED_SECOND: "fixed_second",
   RATE_BRIDGE: "bridge",
 });
@@ -249,6 +252,7 @@ export const RATE_TYPE_LABELS: Readonly<Record<RateType, string>> = Object.freez
   RATE_CONSTRUCTION_OTC: "One-Time Close Construction",
   RATE_CONSTRUCTION_TO_PERM: "Construction-to-Permanent",
   RATE_HELOC: "HELOC (variable)",
+  RATE_HELOC_2ND: "HELOC (2nd Lien)",
   RATE_FIXED_SECOND: "Fixed-Rate Second Mortgage",
   RATE_BRIDGE: "Bridge Loan",
   RATE_SOFR: "SOFR (ARM Index)",
@@ -288,6 +292,7 @@ export const RATE_TYPE_CHIP_LABELS: Readonly<Record<RateType, string>> = Object.
   RATE_CONSTRUCTION_OTC: "Construction OTC",
   RATE_CONSTRUCTION_TO_PERM: "Construction-Perm",
   RATE_HELOC: "HELOC",
+  RATE_HELOC_2ND: "HELOC 2nd",
   RATE_FIXED_SECOND: "Fixed 2nd",
   RATE_BRIDGE: "Bridge",
   RATE_SOFR: "ARM Index",
@@ -380,6 +385,7 @@ export const RATE_TYPE_CATEGORY: Readonly<Record<RateType, RateTypeCategory>> = 
   RATE_CONSTRUCTION_OTC: "construction",
   RATE_CONSTRUCTION_TO_PERM: "construction",
   RATE_HELOC: "second_heloc",
+  RATE_HELOC_2ND: "second_heloc",
   RATE_FIXED_SECOND: "second_heloc",
   RATE_BRIDGE: "second_heloc",
   RATE_SOFR: "index",

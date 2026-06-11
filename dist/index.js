@@ -22,7 +22,7 @@ exports.rateTypeToPfpKey = rateTypeToPfpKey;
 exports.peKeyToRateType = peKeyToRateType;
 exports.fredSeriesToRateType = fredSeriesToRateType;
 exports.isPropertyType = isPropertyType;
-/** Canonical 35-value RateType enum (mirrors Rello `prisma/schema.prisma` `enum RateType`). */
+/** Canonical 36-value RateType enum (mirrors Rello `prisma/schema.prisma` `enum RateType`). */
 exports.RATE_TYPES = [
     // Conventional Fixed
     "RATE_30YR_FIXED",
@@ -64,6 +64,7 @@ exports.RATE_TYPES = [
     "RATE_CONSTRUCTION_TO_PERM",
     // Second / HELOC
     "RATE_HELOC",
+    "RATE_HELOC_2ND",
     "RATE_FIXED_SECOND",
     "RATE_BRIDGE",
     // Index
@@ -108,6 +109,7 @@ Object.assign(PFP_KEY_TO_RATE_TYPE_MAP, {
     construction_otc: "RATE_CONSTRUCTION_OTC",
     construction_to_perm: "RATE_CONSTRUCTION_TO_PERM",
     heloc: "RATE_HELOC",
+    heloc_2nd: "RATE_HELOC_2ND",
     fixed_second: "RATE_FIXED_SECOND",
     bridge: "RATE_BRIDGE",
 });
@@ -152,6 +154,7 @@ exports.RATE_TYPE_TO_PFP_KEY = Object.freeze({
     RATE_CONSTRUCTION_OTC: "construction_otc",
     RATE_CONSTRUCTION_TO_PERM: "construction_to_perm",
     RATE_HELOC: "heloc",
+    RATE_HELOC_2ND: "heloc_2nd",
     RATE_FIXED_SECOND: "fixed_second",
     RATE_BRIDGE: "bridge",
 });
@@ -235,6 +238,7 @@ exports.RATE_TYPE_LABELS = Object.freeze({
     RATE_CONSTRUCTION_OTC: "One-Time Close Construction",
     RATE_CONSTRUCTION_TO_PERM: "Construction-to-Permanent",
     RATE_HELOC: "HELOC (variable)",
+    RATE_HELOC_2ND: "HELOC (2nd Lien)",
     RATE_FIXED_SECOND: "Fixed-Rate Second Mortgage",
     RATE_BRIDGE: "Bridge Loan",
     RATE_SOFR: "SOFR (ARM Index)",
@@ -273,6 +277,7 @@ exports.RATE_TYPE_CHIP_LABELS = Object.freeze({
     RATE_CONSTRUCTION_OTC: "Construction OTC",
     RATE_CONSTRUCTION_TO_PERM: "Construction-Perm",
     RATE_HELOC: "HELOC",
+    RATE_HELOC_2ND: "HELOC 2nd",
     RATE_FIXED_SECOND: "Fixed 2nd",
     RATE_BRIDGE: "Bridge",
     RATE_SOFR: "ARM Index",
@@ -343,6 +348,7 @@ exports.RATE_TYPE_CATEGORY = Object.freeze({
     RATE_CONSTRUCTION_OTC: "construction",
     RATE_CONSTRUCTION_TO_PERM: "construction",
     RATE_HELOC: "second_heloc",
+    RATE_HELOC_2ND: "second_heloc",
     RATE_FIXED_SECOND: "second_heloc",
     RATE_BRIDGE: "second_heloc",
     RATE_SOFR: "index",
