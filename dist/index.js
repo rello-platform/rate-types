@@ -15,7 +15,9 @@
  * Sibling: @rello-platform/permissions (single-domain canonical registry pattern).
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RATE_TYPE_CATEGORY_ORDER = exports.RATE_TYPE_CATEGORY_LABELS = exports.RATE_TYPE_CATEGORY = exports.PROPERTY_TYPE_LABELS = exports.PROPERTY_TYPES = exports.RATE_TYPE_CHIP_LABELS = exports.RATE_TYPE_LABELS = exports.FRED_SERIES_TO_RATE_TYPE = exports.PE_KEY_TO_RATE_TYPE = exports.RATE_TYPE_TO_PFP_KEY = exports.PFP_KEY_TO_RATE_TYPE = exports.RATE_TYPES = void 0;
+exports.RATE_TYPE_CATEGORY_ORDER = exports.RATE_TYPE_CATEGORY_LABELS = exports.RATE_TYPE_CATEGORY = exports.PROPERTY_TYPE_LABELS = exports.PROPERTY_TYPES = exports.RATE_TYPE_CHIP_LABELS = exports.RATE_TYPE_LABELS = exports.FRED_SERIES_TO_RATE_TYPE = exports.PE_KEY_TO_RATE_TYPE = exports.RATE_TYPE_TO_PFP_KEY = exports.PFP_KEY_TO_RATE_TYPE = exports.LOAN_PURPOSES = exports.RATE_TYPES = void 0;
+exports.isLoanPurpose = isLoanPurpose;
+exports.normalizePurpose = normalizePurpose;
 exports.isRateType = isRateType;
 exports.pfpKeyToRateType = pfpKeyToRateType;
 exports.rateTypeToPfpKey = rateTypeToPfpKey;
@@ -70,6 +72,63 @@ exports.RATE_TYPES = [
     // Index
     "RATE_SOFR",
 ];
+// ============================================================================
+// Loan purpose (v0.10.0 — canonical SOT promoted from PFP `loan-purpose.ts`)
+// ============================================================================
+//
+// CANONICAL loan-purpose vocabulary for the rate-sheet pricing dimension. This
+// is the single source of truth — consumed by PFP pricing (`apply-adjustment-stack`,
+// the extractor coordinate + AI grid parsers, the per-tenant rate-sheet
+// `effective` resolver) AND by the Rello effective-rates serve boundary
+// (`GET /api/tenants/[id]/rates/effective` validates the optional `?purpose=`
+// query param against this set before forwarding it to PFP). It was duplicated
+// across both repos (PFP SOT + a Rello mirror that could silently drift);
+// promoting it here eliminates the drift — neither consumer keeps its own copy.
+//
+// The closed set mirrors the borrower-profile vocabulary that flows into
+// `applyAdjustmentStack` via `BorrowerLLPAProfile.purpose`. The LLPA matcher
+// does EXACT categorical equality, so an extracted `RateSheetAdjustment.purpose`
+// row MUST be drawn from this same set or it can never match a borrower.
+exports.LOAN_PURPOSES = ["purchase", "refinance", "cashout"];
+/** Strict membership test against the canonical loan-purpose vocab — exact
+ *  equality only (NOT the fuzzy fold of `normalizePurpose`). Used by the Rello
+ *  serve route to validate the optional `?purpose=` query param (callers send
+ *  already-canonical lowercase values) before forwarding it to PFP. */
+function isLoanPurpose(value) {
+    return (typeof value === "string" &&
+        exports.LOAN_PURPOSES.includes(value));
+}
+/**
+ * Fold an arbitrary purpose label — a rate-sheet cell token ("Cash-out Refi",
+ * "C/O", "Purchase", "R/T Refi"), an intake enum (`CASH_OUT_REFI` /
+ * `RATE_TERM_REFI` / `PURCHASE`), or an already-canonical value — to the closed
+ * `LoanPurpose` set. Returns null for anything that does not clearly name a
+ * purpose, so callers can leave the adjuster's `purpose` null ("applies to all").
+ */
+function normalizePurpose(raw) {
+    if (!raw)
+        return null;
+    const u = raw.toUpperCase();
+    // Negated cash-out FIRST: "No Cash Out Refi" / "No C/O" is a RATE/TERM refi
+    // (it's defined by the ABSENCE of cash-out), so it must NOT fall into the
+    // cash-out branch below — that would mis-price a rate/term loan at the more
+    // expensive cash-out LLPA. This is the load-bearing "no cash out refi =
+    // rate_term_refi" rule from SERVE-REFI-RATES Part A.
+    const isNegatedCashOut = /\bNO\s+CASH[\s-]?OUT\b|\bNO\s+C\/O\b/.test(u);
+    // Cash-out is checked before the generic refi test: a "cash-out refi" string
+    // also contains "REFI", and cash-out is the more specific (and more
+    // expensive) purpose. Ordering is load-bearing.
+    if (!isNegatedCashOut && /\bCASH[\s-]?OUT\b|\bC\/O\b|CASH_OUT/.test(u))
+        return "cashout";
+    if (/\bPURCHASE\b|\bPUR\b/.test(u))
+        return "purchase";
+    // Trailing boundary intentionally dropped after REFI so product names that
+    // suffix the token ("RefiNow", "Refinanced") still tag as a refi.
+    if (/\bR\/T\b|RATE[\s/&-]*TERM|RATE_TERM|\bREFI(?:NANCE)?/.test(u)) {
+        return "refinance";
+    }
+    return null;
+}
 const RATE_TYPE_SET = new Set(exports.RATE_TYPES);
 function isRateType(value) {
     return typeof value === "string" && RATE_TYPE_SET.has(value);

@@ -65,6 +65,68 @@ export const RATE_TYPES = [
 
 export type RateType = (typeof RATE_TYPES)[number];
 
+// ============================================================================
+// Loan purpose (v0.10.0 — canonical SOT promoted from PFP `loan-purpose.ts`)
+// ============================================================================
+//
+// CANONICAL loan-purpose vocabulary for the rate-sheet pricing dimension. This
+// is the single source of truth — consumed by PFP pricing (`apply-adjustment-stack`,
+// the extractor coordinate + AI grid parsers, the per-tenant rate-sheet
+// `effective` resolver) AND by the Rello effective-rates serve boundary
+// (`GET /api/tenants/[id]/rates/effective` validates the optional `?purpose=`
+// query param against this set before forwarding it to PFP). It was duplicated
+// across both repos (PFP SOT + a Rello mirror that could silently drift);
+// promoting it here eliminates the drift — neither consumer keeps its own copy.
+//
+// The closed set mirrors the borrower-profile vocabulary that flows into
+// `applyAdjustmentStack` via `BorrowerLLPAProfile.purpose`. The LLPA matcher
+// does EXACT categorical equality, so an extracted `RateSheetAdjustment.purpose`
+// row MUST be drawn from this same set or it can never match a borrower.
+
+export const LOAN_PURPOSES = ["purchase", "refinance", "cashout"] as const;
+
+export type LoanPurpose = (typeof LOAN_PURPOSES)[number];
+
+/** Strict membership test against the canonical loan-purpose vocab — exact
+ *  equality only (NOT the fuzzy fold of `normalizePurpose`). Used by the Rello
+ *  serve route to validate the optional `?purpose=` query param (callers send
+ *  already-canonical lowercase values) before forwarding it to PFP. */
+export function isLoanPurpose(value: unknown): value is LoanPurpose {
+  return (
+    typeof value === "string" &&
+    (LOAN_PURPOSES as readonly string[]).includes(value)
+  );
+}
+
+/**
+ * Fold an arbitrary purpose label — a rate-sheet cell token ("Cash-out Refi",
+ * "C/O", "Purchase", "R/T Refi"), an intake enum (`CASH_OUT_REFI` /
+ * `RATE_TERM_REFI` / `PURCHASE`), or an already-canonical value — to the closed
+ * `LoanPurpose` set. Returns null for anything that does not clearly name a
+ * purpose, so callers can leave the adjuster's `purpose` null ("applies to all").
+ */
+export function normalizePurpose(raw: string | null | undefined): LoanPurpose | null {
+  if (!raw) return null;
+  const u = raw.toUpperCase();
+  // Negated cash-out FIRST: "No Cash Out Refi" / "No C/O" is a RATE/TERM refi
+  // (it's defined by the ABSENCE of cash-out), so it must NOT fall into the
+  // cash-out branch below — that would mis-price a rate/term loan at the more
+  // expensive cash-out LLPA. This is the load-bearing "no cash out refi =
+  // rate_term_refi" rule from SERVE-REFI-RATES Part A.
+  const isNegatedCashOut = /\bNO\s+CASH[\s-]?OUT\b|\bNO\s+C\/O\b/.test(u);
+  // Cash-out is checked before the generic refi test: a "cash-out refi" string
+  // also contains "REFI", and cash-out is the more specific (and more
+  // expensive) purpose. Ordering is load-bearing.
+  if (!isNegatedCashOut && /\bCASH[\s-]?OUT\b|\bC\/O\b|CASH_OUT/.test(u)) return "cashout";
+  if (/\bPURCHASE\b|\bPUR\b/.test(u)) return "purchase";
+  // Trailing boundary intentionally dropped after REFI so product names that
+  // suffix the token ("RefiNow", "Refinanced") still tag as a refi.
+  if (/\bR\/T\b|RATE[\s/&-]*TERM|RATE_TERM|\bREFI(?:NANCE)?/.test(u)) {
+    return "refinance";
+  }
+  return null;
+}
+
 const RATE_TYPE_SET: ReadonlySet<RateType> = new Set(RATE_TYPES);
 
 export function isRateType(value: unknown): value is RateType {

@@ -16,6 +16,21 @@
 /** Canonical 36-value RateType enum (mirrors Rello `prisma/schema.prisma` `enum RateType`). */
 export declare const RATE_TYPES: readonly ["RATE_30YR_FIXED", "RATE_25YR_FIXED", "RATE_20YR_FIXED", "RATE_15YR_FIXED", "RATE_10YR_FIXED", "RATE_HOMEREADY_30YR", "RATE_HOME_POSSIBLE_30YR", "RATE_5_1_ARM", "RATE_7_6_ARM", "RATE_10_6_ARM", "RATE_FHA_30YR", "RATE_FHA_15YR", "RATE_FHA_STREAMLINE", "RATE_VA_30YR", "RATE_VA_15YR", "RATE_VA_IRRRL", "RATE_USDA_30YR", "RATE_JUMBO_30YR", "RATE_JUMBO_15YR", "RATE_JUMBO_7_6_ARM", "RATE_JUMBO_10_6_ARM", "RATE_DSCR", "RATE_BANK_STATEMENT", "RATE_ITIN", "RATE_FOREIGN_NATIONAL", "RATE_1099_INCOME", "RATE_ASSET_DEPLETION", "RATE_321_BUYDOWN", "RATE_21_BUYDOWN", "RATE_CONSTRUCTION_OTC", "RATE_CONSTRUCTION_TO_PERM", "RATE_HELOC", "RATE_HELOC_2ND", "RATE_FIXED_SECOND", "RATE_BRIDGE", "RATE_SOFR"];
 export type RateType = (typeof RATE_TYPES)[number];
+export declare const LOAN_PURPOSES: readonly ["purchase", "refinance", "cashout"];
+export type LoanPurpose = (typeof LOAN_PURPOSES)[number];
+/** Strict membership test against the canonical loan-purpose vocab — exact
+ *  equality only (NOT the fuzzy fold of `normalizePurpose`). Used by the Rello
+ *  serve route to validate the optional `?purpose=` query param (callers send
+ *  already-canonical lowercase values) before forwarding it to PFP. */
+export declare function isLoanPurpose(value: unknown): value is LoanPurpose;
+/**
+ * Fold an arbitrary purpose label — a rate-sheet cell token ("Cash-out Refi",
+ * "C/O", "Purchase", "R/T Refi"), an intake enum (`CASH_OUT_REFI` /
+ * `RATE_TERM_REFI` / `PURCHASE`), or an already-canonical value — to the closed
+ * `LoanPurpose` set. Returns null for anything that does not clearly name a
+ * purpose, so callers can leave the adjuster's `purpose` null ("applies to all").
+ */
+export declare function normalizePurpose(raw: string | null | undefined): LoanPurpose | null;
 export declare function isRateType(value: unknown): value is RateType;
 export declare const PFP_KEY_TO_RATE_TYPE: Readonly<Record<string, RateType | null>>;
 export declare function pfpKeyToRateType(pfpKey: string): RateType | null;
