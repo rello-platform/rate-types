@@ -289,7 +289,20 @@ export const RATE_TYPE_LABELS: Readonly<Record<RateType, string>> = Object.freez
   RATE_10YR_FIXED: "10-Year Fixed",
   RATE_HOMEREADY_30YR: "HomeReady 30-Year (Fannie)",
   RATE_HOME_POSSIBLE_30YR: "Home Possible 30-Year (Freddie)",
-  RATE_5_1_ARM: "5/1 ARM",
+  // ⛔ "5/6 ARM", NOT "5/1 ARM" — corrected v0.11.0, do not revert.
+  // The identifier is a KNOWN MISNOMER kept deliberately. The slot prices a
+  // conforming 5/6 SOFR ARM: PFP's ARM_RATE_TYPE_PRESET declares
+  // armPreset "5/6", every lender binding points at an explicitly 5/6-named
+  // program (CMG "5/6 SOFR ARM", Mega "CONF5/6", Orion "FANNIE MAE - 5/6 ARM",
+  // ResiCentral "Conforming 5/6 SOFR ARM"), and NO conventional 5/1 has ever
+  // been stored — 0 across every sheet, all time, 9 lenders. Conforming ARMs
+  // went SOFR/six-month after the LIBOR transition; the 1-year shapes survive
+  // only on FHA and VA. A 5/1 and a 5/6 adjust on different schedules, so the
+  // old label misstated the product to a BORROWER, not just in our data.
+  // The RateType id and the conventional_5_1_arm pfp key are unchanged: they
+  // are a published contract, and renaming them is a breaking migration to fix
+  // a name nobody outside the code reads.
+  RATE_5_1_ARM: "5/6 ARM",
   RATE_7_6_ARM: "7/6 ARM",
   RATE_10_6_ARM: "10/6 ARM",
   RATE_FHA_30YR: "FHA 30-Year",
@@ -329,7 +342,20 @@ export const RATE_TYPE_CHIP_LABELS: Readonly<Record<RateType, string>> = Object.
   RATE_10YR_FIXED: "10yr Fixed",
   RATE_HOMEREADY_30YR: "HomeReady",
   RATE_HOME_POSSIBLE_30YR: "Home Possible",
-  RATE_5_1_ARM: "5/1 ARM",
+  // ⛔ "5/6 ARM", NOT "5/1 ARM" — corrected v0.11.0, do not revert.
+  // The identifier is a KNOWN MISNOMER kept deliberately. The slot prices a
+  // conforming 5/6 SOFR ARM: PFP's ARM_RATE_TYPE_PRESET declares
+  // armPreset "5/6", every lender binding points at an explicitly 5/6-named
+  // program (CMG "5/6 SOFR ARM", Mega "CONF5/6", Orion "FANNIE MAE - 5/6 ARM",
+  // ResiCentral "Conforming 5/6 SOFR ARM"), and NO conventional 5/1 has ever
+  // been stored — 0 across every sheet, all time, 9 lenders. Conforming ARMs
+  // went SOFR/six-month after the LIBOR transition; the 1-year shapes survive
+  // only on FHA and VA. A 5/1 and a 5/6 adjust on different schedules, so the
+  // old label misstated the product to a BORROWER, not just in our data.
+  // The RateType id and the conventional_5_1_arm pfp key are unchanged: they
+  // are a published contract, and renaming them is a breaking migration to fix
+  // a name nobody outside the code reads.
+  RATE_5_1_ARM: "5/6 ARM",
   RATE_7_6_ARM: "7/6 ARM",
   RATE_10_6_ARM: "10/6 ARM",
   RATE_FHA_30YR: "FHA",
