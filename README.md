@@ -102,3 +102,7 @@ Authored 2026-05-13 as PR-1 of the MLO Rate Sheet Ingestion workstream per B-08 
 Pre-flight verbatim grep anchored at:
 - Rello SHA `abc097bae00225b02d8a302248475b7837864fc5` — `prisma/schema.prisma enum RateType` (8 values)
 - PFP SHA `563a4d502ac6b268976dbb5c0e0dc1658aa5a0e4` — `src/app/api/rate-sheets/route.ts RATE_EXTRACTION_PROMPT` (7 keys)
+
+## Contributor setup
+
+After cloning, run `npm run hooks` once to wire the husky hooks (`core.hooksPath .husky`). This used to be the `prepare` script; C-33 (2026-09-16) moved it off the `prepare` name because npm runs a nested, lockfile-less install inside every git dependency whose manifest carries `prepare` (or `build`), and one such install failed two app builds on a registry blip.
