@@ -85,7 +85,7 @@ Bump `version` here AND ship the atomic Rello `enum RateType` migration AND upda
 2. Add label entries in `RATE_TYPE_LABELS` and `RATE_TYPE_CHIP_LABELS`.
 3. If a PFP / PE / FRED translation exists, add it to the corresponding map. If not, document the gap in the README's namespace table.
 4. Bump `version` to a new SemVer minor (additive) or major (breaking — only if removing an existing value).
-5. `npm run build`, commit, tag, push, release.
+5. `npm run compile`, commit, tag, push, release.
 6. In the Rello PR that adds the value to `prisma/schema.prisma enum RateType`, bump the consumer pin to the new release SHA atomically.
 7. Bump consumer pins in PFP + any other consumers as separate PRs.
 
